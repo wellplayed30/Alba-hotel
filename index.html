@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Схема парковки отеля</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: Arial, sans-serif; background: #f0f2f5; padding: 20px; }
+        .container { max-width: 1200px; margin: auto; background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #333; margin-bottom: 10px; }
+        .parking-map { position: relative; display: inline-block; width: 100%; }
+        .parking-map img { width: 100%; height: auto; display: block; }
+        .spot-overlay { position: absolute; cursor: pointer; border: 2px solid transparent; border-radius: 4px; transition: 0.2s; }
+        .spot-overlay:hover { border-color: #007bff; }
+        .spot-overlay.free { background: rgba(0, 200, 0, 0.3); }
+        .spot-overlay.occupied { background: rgba(200, 0, 0, 0.3); }
+        .spot-overlay.selected { border-color: #ffc107; box-shadow: 0 0 8px #ffc107; }
+        .legend { margin: 20px 0; display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
+        .legend-item { display: flex; align-items: center; gap: 8px; }
+        .color-box { width: 20px; height: 20px; border-radius: 4px; }
+        .color-box.green { background: rgba(0,200,0,0.6); }
+        .color-box.red { background: rgba(200,0,0,0.6); }
+        .controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 10px; }
+        button { padding: 8px 16px; background: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; }
+        button:disabled { background: #aaa; cursor: not-allowed; }
+        button.danger { background: #dc3545; }
+        .status { margin-top: 10px; font-size: 14px; color: #555; }
+        .login-box { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 15px; }
+        input { padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>🚗 Парковка отеля</h1>
+    <div class="login-box" id="loginBox">
+        <button id="loginEditorBtn">Войти как редактор</button>
+        <button id="loginViewerBtn">Войти как наблюдатель</button>
+        <button id="logoutBtn" style="display:none;" class="danger">Выйти</button>
+        <span id="userInfo" style="margin-left:10px;"></span>
+    </div>
+    <div class="parking-map" id="parkingMap">
+        <!-- Вставьте сюда вашу схему -->
+        <img src="parking.png" alt="Схема парковки" id="parkingImage">
+        <!-- Места будут добавлены через JS -->
+    </div>
+    <div class="legend">
+        <div class="legend-item"><div class="color-box green"></div> Свободно</div>
+        <div class="legend-item"><div class="color-box red"></div> Занято</div>
+    </div>
+    <div class="controls">
+        <button id="refreshBtn">Обновить статусы</button>
+        <span id="editorControls" style="display:none;">
+            <span>Статус по клику: <select id="statusSelect"><option value="free">Свободно</option><option value="occupied">Занято</option></select></span>
+        </span>
+    </div>
+    <div class="status" id="statusMessage">Подготовка...</div>
+</div>
+
+<script>
+    // Конфигурация Firebase - замените на свои данные
+    const firebaseConfig = {
+        apiKey: "AIzaSyClZAZqezdYTrR0k7aA-QWoJrL_6Ex04-I",
+  	authDomain: "albahotel-38d36.firebaseapp.com",
+  	projectId: "albahotel-38d36",
+  	storageBucket: "albahotel-38d36.firebasestorage.app",
+  	messagingSenderId: "98903143411",
+  	appId: "1:98903143411:web:f085c67febb25ecf325886",
+ 	measurementId: "G-QM40D0T1H0"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+    const auth = firebase.auth();
+
+    // ====== Определите места на схеме (координаты в процентах от ширины/высоты картинки) ======
+    // Пример: 4 места, подстройте под свой план
+    const spots = [
+        { id: 'A1', left: 5, top: 10, width: 20, height: 30 },
+        { id: 'A2', left: 30, top: 10, width: 20, height: 30 },
+        { id: 'B1', left: 5, top: 50, width: 20, height: 30 },
+        { id: 'B2', left: 30, top: 50, width: 20, height: 30 }
+    ];
+
+    let currentUserRole = null; // 'editor' or 'viewer'
+
+    // ====== Аутентификация ======
+    document.getElementById('loginEditorBtn').onclick = async () => {
+        await signInAnonymously('editor');
+    };
+    document.getElementById('loginViewerBtn').onclick = async () => {
+        await signInAnonymously('viewer');
+    };
+
+    async function signInAnonymously(role) {
+        try {
+            await auth.signInAnonymously();
+            // После входа сохраняем роль в базе данных
+            const user = auth.currentUser;
+            if (user) {
+                await database.ref('users/' + user.uid).set({ role: role });
+                currentUserRole = role;
+                updateUI();
+            }
+        } catch (error) {
+            alert('Ошибка входа: ' + error.message);
+        }
+    }
+
+    document.getElementById('logoutBtn').onclick = () => {
+        auth.signOut();
+        currentUserRole = null;
+        updateUI();
+    };
+
+    auth.onAuthStateChanged(user => {
+        if (user) {
+            // проверяем роль из базы
+            database.ref('users/' + user.uid + '/role').once('value').then(snap => {
+                currentUserRole = snap.val() || 'viewer';
+                updateUI();
+            });
+        } else {
+            currentUserRole = null;
+            updateUI();
+        }
+    });
+
+    function updateUI() {
+        const editorBtn = document.getElementById('loginEditorBtn');
+        const viewerBtn = document.getElementById('loginViewerBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const userInfo = document.getElementById('userInfo');
+        const editorControls = document.getElementById('editorControls');
+
+        if (currentUserRole) {
+            editorBtn.style.display = 'none';
+            viewerBtn.style.display = 'none';
+            logoutBtn.style.display = 'inline-block';
+            userInfo.textContent = `Роль: ${currentUserRole}`;
+            editorControls.style.display = currentUserRole === 'editor' ? 'block' : 'none';
+        } else {
+            editorBtn.style.display = 'inline-block';
+            viewerBtn.style.display = 'inline-block';
+            logoutBtn.style.display = 'none';
+            userInfo.textContent = '';
+            editorControls.style.display = 'none';
+        }
+        document.getElementById('statusMessage').textContent = currentUserRole ? 'Вы вошли как ' + currentUserRole : 'Войдите для просмотра';
+    }
+
+    // ====== Создание мест на схеме ======
+    const mapDiv = document.getElementById('parkingMap');
+    spots.forEach(spot => {
+        const div = document.createElement('div');
+        div.className = 'spot-overlay free';
+        div.id = 'spot-' + spot.id;
+        div.style.left = spot.left + '%';
+        div.style.top = spot.top + '%';
+        div.style.width = spot.width + '%';
+        div.style.height = spot.height + '%';
+        div.dataset.spotId = spot.id;
+        // Слушаем клик для редактирования
+        div.addEventListener('click', () => handleSpotClick(spot.id));
+        mapDiv.appendChild(div);
+    });
+
+    // ====== Работа с базой данных ======
+    let currentListeners = [];
+
+    function loadSpotsFromDB() {
+        // Удаляем старые слушатели
+        currentListeners.forEach(ref => ref.off());
+        currentListeners = [];
+
+        const spotsRef = database.ref('spots');
+        spotsRef.on('value', snapshot => {
+            const data = snapshot.val() || {};
+            spots.forEach(spot => {
+                const el = document.getElementById('spot-' + spot.id);
+                if (data[spot.id] === 'occupied') {
+                    el.classList.add('occupied');
+                    el.classList.remove('free');
+                } else {
+                    el.classList.remove('occupied');
+                    el.classList.add('free');
+                }
+            });
+            document.getElementById('statusMessage').textContent = 'Статусы обновлены (' + new Date().toLocaleTimeString() + ')';
+        });
+        currentListeners.push(spotsRef);
+    }
+
+    // ====== Обработка клика по месту ======
+    async function handleSpotClick(spotId) {
+        if (currentUserRole !== 'editor') {
+            alert('Только редактор может менять статус.');
+            return;
+        }
+        const selectedStatus = document.getElementById('statusSelect').value;
+        try {
+            await database.ref('spots/' + spotId).set(selectedStatus);
+        } catch (e) {
+            alert('Ошибка сохранения: ' + e.message);
+        }
+    }
+
+    // ====== Кнопка обновления ======
+    document.getElementById('refreshBtn').onclick = () => {
+        loadSpotsFromDB();
+    };
+
+    // Загружаем данные при старте
+    loadSpotsFromDB();
+    updateUI();
+</script>
+</body>
+</html>
