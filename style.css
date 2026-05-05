@@ -57,33 +57,6 @@ header h1 { font-size: 1.5rem; color: #1e293b; }
 .dot.electric { background: #a78bfa; border: 1px solid #7c3aed; }
 .dot.disabled { background: #ffffff; border: 1px solid #1e293b; }
 
-/* === ПОДПИСИ ЗОН === */
-.zone-labels {
-  display: flex;
-  justify-content: space-between;
-  gap: 15px;
-  margin-bottom: 12px;
-  flex-wrap: wrap;
-}
-.zone-label {
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  background: white;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-}
-.zone-label.hotel {
-  background: #dbeafe;
-  color: #1e40af;
-  border-left: 4px solid #2563eb;
-}
-.zone-label.owner {
-  background: #fef3c7;
-  color: #92400e;
-  border-left: 4px solid #f59e0b;
-}
-
 /* === КАРТА ПАРКОВКИ === */
 #parking-map {
   background: #d6ebf5;
@@ -97,19 +70,37 @@ header h1 { font-size: 1.5rem; color: #1e293b; }
   overflow-x: auto;
 }
 
-.row-label, .row-label-vertical {
+.row-label {
   font-size: 0.75rem; color: #64748b;
   text-transform: uppercase; letter-spacing: 1px;
   margin-bottom: 4px;
 }
 
-/* Верхний горизонтальный ряд (36–91) */
+/* === ВЕРХНИЙ РЯД С ПОДПИСЯМИ === */
 .top-row {
   width: 100%;
 }
+.top-labels {
+  display: flex;
+  gap: 2px;
+  margin-bottom: 6px;
+}
+.top-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-align: center;
+  background: #f8fafc;
+  padding: 4px 2px;
+  border-radius: 6px;
+  color: #1e293b;
+  white-space: normal;
+  word-break: keep-all;
+  line-height: 1.2;
+  flex-shrink: 0;
+  /* ширина будет задаваться через JS или CSS — сделаем auto, но для единообразия позже */
+}
 .spots-horizontal {
   display: flex;
-  flex-wrap: nowrap;
   gap: 2px;
   border: 2px solid #475569;
   padding: 3px;
@@ -117,48 +108,38 @@ header h1 { font-size: 1.5rem; color: #1e293b; }
   border-radius: 4px;
   width: max-content;
 }
-/* Разделитель между 41 и 42 */
-.spot-separator {
-  width: 6px;
-  background: repeating-linear-gradient(
-    45deg,
-    #475569,
-    #475569 4px,
-    #94a3b8 4px,
-    #94a3b8 8px
-  );
-  margin: 0 2px;
-  border-radius: 2px;
-  cursor: help;
-}
-
-/* Проезд */
-.driveway {
-  width: 100%;
-  height: 50px;
+.top-spot-group {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #64748b;
-  font-size: 0.85rem;
-  font-weight: 600;
-  letter-spacing: 2px;
-  background: repeating-linear-gradient(
-    90deg, transparent, transparent 15px,
-    #94a3b8 15px, #94a3b8 25px
-  );
-  border-radius: 4px;
-  margin: 5px 0;
+  gap: 2px;
 }
+/* ширина подписи должна соответствовать ширине группы */
+.top-label {
+  min-width: calc(44px * количество_мест_в_группе + 2px * (количество_мест_в_группе - 1));
+}
+/* зададим через JS динамически или используем flex: auto, но лучше пусть JS задаст ширину */
+/* Добавим в app.js расчёт ширины */
+/* Но для простоты можно обойтись, если подписи центрируются автоматически */
+/* Упростим: уберём min-width, пусть текст переносится */
 
-/* Левый вертикальный ряд (1–34, снизу вверх) */
+/* === ЛЕВЫЙ РЯД === */
 .left-row {
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
+}
+.left-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  background: #e2e8f0;
+  padding: 6px 12px;
+  border-radius: 20px;
+  margin-bottom: 8px;
+  color: #1e40af;
+  background: #dbeafe;
 }
 .spots-vertical {
   display: flex;
-  flex-direction: column-reverse; /* 1 снизу, 34 сверху */
+  flex-direction: column-reverse;
   gap: 2px;
   border: 2px solid #475569;
   padding: 3px;
@@ -191,24 +172,30 @@ header h1 { font-size: 1.5rem; color: #1e293b; }
 }
 
 /* Размеры */
-.spots-horizontal .spot { width: 44px; height: 56px; }
-.spots-vertical .spot   { width: 100%; height: 32px; flex-direction: row; gap: 4px; }
+.spots-horizontal .spot,
+.top-spot-group .spot {
+  width: 44px;
+  height: 56px;
+}
+.spots-vertical .spot {
+  width: 100%;
+  height: 32px;
+  flex-direction: row;
+  gap: 4px;
+}
 
-/* Иконка типа места */
 .spot-icon {
   font-size: 14px;
   line-height: 1;
 }
 .spots-horizontal .spot-icon { margin-bottom: 1px; }
-
-/* Номер */
 .spot-num { font-size: inherit; }
 
-/* === Цвета по ТИПУ места (когда свободно) === */
+/* Цвета по типу */
 .spot.electric { background: #a78bfa; border-color: #7c3aed; color: white; }
 .spot.disabled { background: #ffffff; border-color: #1e293b; color: #1e293b; }
 
-/* === Состояния (перекрывают тип) === */
+/* Состояния */
 .spot.busy {
   background: #f87171 !important;
   border-color: #dc2626 !important;
@@ -220,13 +207,12 @@ header h1 { font-size: 1.5rem; color: #1e293b; }
   color: #78350f !important;
   animation: pulse 1.5s infinite;
 }
-
 @keyframes pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.7; }
 }
 
-/* Подсказка с гостем */
+/* Подсказка */
 .spot[data-guest]:not([data-guest=""])::after {
   content: attr(data-guest);
   position: absolute;
@@ -247,7 +233,23 @@ header h1 { font-size: 1.5rem; color: #1e293b; }
 }
 .spot[data-guest]:not([data-guest=""]):hover::after { opacity: 1; }
 
-/* === МОДАЛКА === */
+/* Проезд */
+.driveway {
+  width: 100%;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 2px;
+  background: repeating-linear-gradient(90deg, transparent, transparent 15px, #94a3b8 15px, #94a3b8 25px);
+  border-radius: 4px;
+  margin: 5px 0;
+}
+
+/* Модалка */
 .modal {
   position: fixed; inset: 0;
   background: rgba(0,0,0,0.5);
@@ -287,12 +289,17 @@ header h1 { font-size: 1.5rem; color: #1e293b; }
 .btn-secondary { background: #e2e8f0; color: #1e293b; }
 .btn-secondary:hover { background: #cbd5e1; }
 
-/* === МОБИЛЬНАЯ АДАПТАЦИЯ === */
+/* Мобильная адаптация */
 @media (max-width: 600px) {
-  .spots-horizontal .spot { width: 38px; height: 48px; font-size: 0.7rem; }
+  .spots-horizontal .spot,
+  .top-spot-group .spot {
+    width: 38px;
+    height: 48px;
+    font-size: 0.7rem;
+  }
   .spots-vertical { width: 75px; }
   .spots-vertical .spot { height: 28px; font-size: 0.75rem; }
   header h1 { font-size: 1.2rem; }
-  .spot-separator { width: 4px; }
-  .zone-label { font-size: 0.7rem; }
+  .top-label { font-size: 0.6rem; }
+  .left-label { font-size: 0.65rem; }
 }

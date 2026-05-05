@@ -25,22 +25,26 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 // === КОНФИГ ПАРКОВКИ ===
-// Левый вертикальный ряд: 1–34 (нумерация снизу вверх)
 const LEFT_SPOTS = Array.from({length: 34}, (_, i) => i + 1);
-// Верхний горизонтальный ряд: 36–91
 const TOP_SPOTS  = Array.from({length: 56}, (_, i) => i + 36);
-// Электрозарядки (фиолетовые)
 const ELECTRIC_SPOTS = [59, 65];
-// Места для инвалидов (белые с ♿) — место 60 стало обычным
-const DISABLED_SPOTS = [61, 62, 63, 71, 72, 73, 74, 75];
+const DISABLED_SPOTS = [72, 73, 74, 75]; // 61,62,63,71 — обычные
 
-// === СОСТОЯНИЕ ===
+// Группы для подписей на верхнем ряду
+const TOP_GROUPS = [
+  { start: 36, end: 41, label: "Парковка гостиничного оператора" },
+  { start: 42, end: 60, label: "Парковка собственников апартаментов" },
+  { start: 61, end: 63, label: "Парковка гостиничного оператора" },
+  { start: 64, end: 70, label: "Парковка собственников апартаментов" },
+  { start: 71, end: 71, label: "ГО" },
+  { start: 72, end: 91, label: "Парковка собственников апартаментов" }
+];
+
 let currentUser = null;
-let currentRole = "viewer"; // editor / viewer
-let parkingData = {};       // { "1": {apart, plate, until, ...}, ... }
+let currentRole = "viewer";
+let parkingData = {};
 let selectedSpot = null;
 
-// === ЭЛЕМЕНТЫ ===
 const loginScreen = document.getElementById("login-screen");
 const mainScreen  = document.getElementById("main-screen");
 const loginError  = document.getElementById("login-error");
@@ -67,17 +71,13 @@ document.getElementById("google-btn").onclick = async () => {
 
 document.getElementById("logout-btn").onclick = () => signOut(auth);
 
-// При смене состояния авторизации
 onAuthStateChanged(auth, async (user) => {
   if (user) {
     currentUser = user;
-
-    // Проверяем роль в коллекции users
     const userDoc = await getDoc(doc(db, "users", user.uid));
     if (userDoc.exists()) {
       currentRole = userDoc.data().role || "viewer";
     } else {
-      // Первый вход — создаём как viewer
       await setDoc(doc(db, "users", user.uid), {
         email: user.email,
         role: "viewer"
@@ -88,7 +88,6 @@ onAuthStateChanged(auth, async (user) => {
     loginScreen.style.display = "none";
     mainScreen.style.display = "block";
     document.getElementById("user-info").textContent = user.email;
-
     const roleEl = document.getElementById("user-role");
     roleEl.textContent = currentRole === "editor" ? "✏️ Редактор" : "👁 Просмотр";
     roleEl.className = currentRole;
@@ -102,25 +101,37 @@ onAuthStateChanged(auth, async (user) => {
   }
 });
 
-// === ОТРИСОВКА ПАРКОВКИ ===
+// === ОТРИСОВКА ===
 function renderParking() {
-  // Верхний ряд (36–91) с разделителем после 41
-  const topEl = document.getElementById("top-spots");
-  topEl.innerHTML = "";
-  
-  for (let i = 0; i < TOP_SPOTS.length; i++) {
-    const num = TOP_SPOTS[i];
-    topEl.appendChild(createSpot(num));
-    // Если это место 41, добавляем разделитель
-    if (num === 41) {
-      const separator = document.createElement("div");
-      separator.className = "spot-separator";
-      separator.title = "Граница: 1–41 — гостиница, 42–91 — собственники";
-      topEl.appendChild(separator);
-    }
-  }
+  renderTopRowWithLabels();
+  renderLeftColumn();
+}
 
-  // Левый ряд (1–34) — column-reverse в CSS, поэтому добавляем по порядку
+function renderTopRowWithLabels() {
+  const topSpotsContainer = document.getElementById("top-spots");
+  const topLabelsContainer = document.getElementById("top-labels");
+  topSpotsContainer.innerHTML = "";
+  topLabelsContainer.innerHTML = "";
+
+  // Для каждой группы создаём блок подписи и контейнер мест
+  TOP_GROUPS.forEach(group => {
+    // Создаём блок подписи
+    const labelDiv = document.createElement("div");
+    labelDiv.className = "top-label";
+    labelDiv.textContent = group.label;
+    topLabelsContainer.appendChild(labelDiv);
+
+    // Создаём контейнер для мест этой группы (чтобы подпись была ровно над ними)
+    const groupContainer = document.createElement("div");
+    groupContainer.className = "top-spot-group";
+    for (let num = group.start; num <= group.end; num++) {
+      groupContainer.appendChild(createSpot(num));
+    }
+    topSpotsContainer.appendChild(groupContainer);
+  });
+}
+
+function renderLeftColumn() {
   const leftEl = document.getElementById("left-spots");
   leftEl.innerHTML = "";
   LEFT_SPOTS.forEach(num => leftEl.appendChild(createSpot(num)));
@@ -179,7 +190,6 @@ function updateSpotStatuses() {
   });
 }
 
-// === ПОДПИСКА НА ИЗМЕНЕНИЯ ===
 function subscribeToParking() {
   onSnapshot(collection(db, "parking"), (snap) => {
     parkingData = {};
@@ -188,7 +198,6 @@ function subscribeToParking() {
   });
 }
 
-// Каждую минуту перепроверяем "истёкшие" брони
 setInterval(updateSpotStatuses, 60 * 1000);
 
 // === МОДАЛКА ===
@@ -196,7 +205,6 @@ function openModal(num) {
   selectedSpot = num;
   document.getElementById("modal-title").textContent = `Место №${num}`;
 
-  // Информация о типе места
   const typeInfo = document.getElementById("modal-spot-type");
   if (ELECTRIC_SPOTS.includes(Number(num))) {
     typeInfo.textContent = "⚡ Место для электрозарядки";
@@ -213,25 +221,21 @@ function openModal(num) {
   document.getElementById("apart-input").value = data.apart || "";
   document.getElementById("plate-input").value = data.plate || "";
 
-  // datetime-local требует формат YYYY-MM-DDTHH:mm
   if (data.until) {
     const d = new Date(data.until);
     const pad = n => String(n).padStart(2, "0");
     document.getElementById("until-input").value =
-      `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}` +
-      `T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+      `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
   } else {
     document.getElementById("until-input").value = "";
   }
 
-  // Права доступа
   const isEditor = currentRole === "editor";
   document.getElementById("apart-input").disabled = !isEditor;
   document.getElementById("plate-input").disabled = !isEditor;
   document.getElementById("until-input").disabled = !isEditor;
   document.getElementById("save-btn").style.display  = isEditor ? "inline-block" : "none";
-  document.getElementById("clear-btn").style.display =
-    isEditor && (data.apart || data.plate) ? "inline-block" : "none";
+  document.getElementById("clear-btn").style.display = isEditor && (data.apart || data.plate) ? "inline-block" : "none";
 
   modal.style.display = "flex";
 }
@@ -289,7 +293,6 @@ document.getElementById("clear-btn").onclick = async () => {
   }
 };
 
-// Закрытие по Escape
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape" && modal.style.display === "flex") closeModal();
 });
