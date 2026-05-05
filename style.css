@@ -345,3 +345,33 @@ header h1 { font-size: 1.5rem; color: #1e293b; }
   .top-group-label { font-size: 0.6rem; white-space: normal; text-align: center; }
   .vertical-label { font-size: 0.7rem; padding: 8px 6px; }
 }
+
+/* Логотип на экране входа */
+.logo-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.logo {
+  height: 50px;
+  width: auto;
+}
+.logo-title h1 {
+  margin-bottom: 0;
+}
+
+/* Логотип в шапке */
+.logo-title-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.logo-small {
+  height: 40px;
+  width: auto;
+}
+.logo-title-header h1 {
+  margin: 0;
+}
