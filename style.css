@@ -1,0 +1,255 @@
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+body { background: #d6ebf5; padding: 15px; min-height: 100vh; }
+
+/* === ЭКРАН ВХОДА === */
+#login-screen {
+  max-width: 400px; margin: 80px auto; background: white;
+  padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+#login-screen h1 { text-align: center; margin-bottom: 20px; color: #1e293b; }
+#login-screen input {
+  width: 100%; padding: 12px; margin-bottom: 10px;
+  border: 1px solid #cbd5e1; border-radius: 8px; font-size: 16px;
+}
+#login-screen button {
+  width: 100%; padding: 12px; margin-top: 8px;
+  background: #2563eb; color: white; border: none;
+  border-radius: 8px; font-size: 16px; cursor: pointer;
+  transition: background 0.2s;
+}
+#login-screen button:hover { background: #1d4ed8; }
+#google-btn { background: #ea4335 !important; }
+#google-btn:hover { background: #c5372b !important; }
+#login-error { color: #dc2626; text-align: center; margin-top: 10px; min-height: 20px; }
+
+/* === ШАПКА === */
+header {
+  display: flex; justify-content: space-between; align-items: center;
+  background: white; padding: 15px 20px; border-radius: 12px;
+  margin-bottom: 20px; flex-wrap: wrap; gap: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+header h1 { font-size: 1.5rem; color: #1e293b; }
+.header-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+#user-info { color: #475569; font-size: 0.9rem; }
+#user-role {
+  background: #2563eb; color: white; padding: 4px 10px;
+  border-radius: 6px; font-size: 0.85rem; font-weight: 600;
+}
+#user-role.viewer { background: #64748b; }
+#logout-btn {
+  padding: 8px 16px; background: #ef4444; color: white;
+  border: none; border-radius: 8px; cursor: pointer;
+}
+#logout-btn:hover { background: #dc2626; }
+
+/* === ЛЕГЕНДА === */
+.legend {
+  display: flex; gap: 20px; flex-wrap: wrap;
+  background: white; padding: 12px 20px; border-radius: 12px;
+  margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+.legend > span { display: flex; align-items: center; gap: 6px; font-size: 0.9rem; }
+.dot { width: 16px; height: 16px; border-radius: 4px; display: inline-block; }
+.dot.free     { background: #86efac; border: 1px solid #22c55e; }
+.dot.busy     { background: #f87171; border: 1px solid #dc2626; }
+.dot.expired  { background: #fcd34d; border: 1px solid #f59e0b; }
+.dot.electric { background: #a78bfa; border: 1px solid #7c3aed; }
+.dot.disabled { background: #ffffff; border: 1px solid #1e293b; }
+
+/* === КАРТА ПАРКОВКИ === */
+#parking-map {
+  background: #d6ebf5;
+  padding: 20px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 0 auto;
+  overflow-x: auto;
+}
+
+.row-label, .row-label-vertical {
+  font-size: 0.75rem; color: #64748b;
+  text-transform: uppercase; letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+
+/* Верхний горизонтальный ряд (36–91) */
+.top-row {
+  width: 100%;
+}
+.spots-horizontal {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 2px;
+  border: 2px solid #475569;
+  padding: 3px;
+  background: white;
+  border-radius: 4px;
+  width: max-content;
+}
+
+/* Проезд */
+.driveway {
+  width: 100%;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 2px;
+  background: repeating-linear-gradient(
+    90deg, transparent, transparent 15px,
+    #94a3b8 15px, #94a3b8 25px
+  );
+  border-radius: 4px;
+  margin: 5px 0;
+}
+
+/* Левый вертикальный ряд (1–34, снизу вверх) */
+.left-row {
+  display: flex;
+  flex-direction: column;
+}
+.spots-vertical {
+  display: flex;
+  flex-direction: column-reverse; /* 1 снизу, 34 сверху */
+  gap: 2px;
+  border: 2px solid #475569;
+  padding: 3px;
+  background: white;
+  border-radius: 4px;
+  width: 90px;
+}
+
+/* === МЕСТО === */
+.spot {
+  background: #86efac;
+  border: 1px solid #22c55e;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #14532d;
+  cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.1s;
+  position: relative;
+  user-select: none;
+  border-radius: 3px;
+}
+.spot:hover {
+  transform: scale(1.08);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+  z-index: 5;
+}
+
+/* Размеры */
+.spots-horizontal .spot { width: 44px; height: 56px; }
+.spots-vertical .spot   { width: 100%; height: 32px; flex-direction: row; gap: 4px; }
+
+/* Иконка типа места */
+.spot-icon {
+  font-size: 14px;
+  line-height: 1;
+}
+.spots-horizontal .spot-icon { margin-bottom: 1px; }
+
+/* Номер */
+.spot-num { font-size: inherit; }
+
+/* === Цвета по ТИПУ места (когда свободно) === */
+.spot.electric { background: #a78bfa; border-color: #7c3aed; color: white; }
+.spot.disabled { background: #ffffff; border-color: #1e293b; color: #1e293b; }
+
+/* === Состояния (перекрывают тип) === */
+.spot.busy {
+  background: #f87171 !important;
+  border-color: #dc2626 !important;
+  color: white !important;
+}
+.spot.expired {
+  background: #fcd34d !important;
+  border-color: #f59e0b !important;
+  color: #78350f !important;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* Подсказка с гостем */
+.spot[data-guest]:not([data-guest=""])::after {
+  content: attr(data-guest);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1e293b;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+  z-index: 10;
+  margin-bottom: 4px;
+}
+.spot[data-guest]:not([data-guest=""]):hover::after { opacity: 1; }
+
+/* === МОДАЛКА === */
+.modal {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 100; padding: 20px;
+}
+.modal-content {
+  background: white; padding: 25px; border-radius: 12px;
+  max-width: 400px; width: 100%;
+}
+.modal-content h2 { margin-bottom: 8px; color: #1e293b; }
+.spot-type-info {
+  font-size: 0.85rem;
+  color: #64748b;
+  margin-bottom: 12px;
+  padding: 6px 10px;
+  background: #f1f5f9;
+  border-radius: 6px;
+  display: none;
+}
+.spot-type-info.visible { display: block; }
+.modal-content label { display: block; margin: 12px 0 5px; font-size: 0.9rem; color: #475569; }
+.modal-content input {
+  width: 100%; padding: 10px; border: 1px solid #cbd5e1;
+  border-radius: 8px; font-size: 15px;
+}
+.modal-buttons { display: flex; gap: 8px; margin-top: 20px; flex-wrap: wrap; }
+.modal-buttons button {
+  flex: 1; padding: 10px; border: none; border-radius: 8px;
+  cursor: pointer; font-size: 14px; font-weight: 600;
+  min-width: 100px;
+}
+.btn-primary { background: #2563eb; color: white; }
+.btn-primary:hover { background: #1d4ed8; }
+.btn-success { background: #22c55e; color: white; }
+.btn-success:hover { background: #16a34a; }
+.btn-secondary { background: #e2e8f0; color: #1e293b; }
+.btn-secondary:hover { background: #cbd5e1; }
+
+/* === МОБИЛЬНАЯ АДАПТАЦИЯ === */
+@media (max-width: 600px) {
+  .spots-horizontal .spot { width: 38px; height: 48px; font-size: 0.7rem; }
+  .spots-vertical { width: 75px; }
+  .spots-vertical .spot { height: 28px; font-size: 0.75rem; }
+  header h1 { font-size: 1.2rem; }
+}
