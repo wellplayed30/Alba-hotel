@@ -27,16 +27,17 @@ const db = getFirestore(app);
 // === КОНФИГ ПАРКОВКИ ===
 const LEFT_SPOTS = Array.from({length: 34}, (_, i) => i + 1);
 const ELECTRIC_SPOTS = [59, 65];
-const DISABLED_SPOTS = [72, 73, 74, 75];
+// Инвалидные места: 61,62,63,72
+const DISABLED_SPOTS = [61, 62, 63, 72];
 
 // Группы для верхнего ряда: start, end, label
 const TOP_GROUPS = [
   { start: 36, end: 41, label: "Парковка гостиничного оператора" },
   { start: 42, end: 60, label: "Парковка собственников апартаментов" },
-  { start: 61, end: 63, label: "Парковка гостиничного оператора" },
-  { start: 64, end: 70, label: "Парковка собственников апартаментов" },
-  { start: 71, end: 71, label: "ГО" },
-  { start: 72, end: 91, label: "Парковка собственников апартаментов" }
+  { start: 61, end: 63, label: "♿ Места для инвалидов (ГО)" },
+  { start: 64, end: 71, label: "Парковка собственников апартаментов" },
+  { start: 72, end: 72, label: "♿ ГО (инвалидное)" },
+  { start: 73, end: 91, label: "Парковка собственников апартаментов" }
 ];
 
 let currentUser = null;
@@ -107,7 +108,7 @@ function renderTopRow() {
   const container = document.getElementById("top-row-container");
   container.innerHTML = "";
 
-  TOP_GROUPS.forEach(group => {
+  TOP_GROUPS.forEach((group, index) => {
     const groupDiv = document.createElement("div");
     groupDiv.className = "top-group";
 

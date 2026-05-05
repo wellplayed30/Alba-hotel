@@ -68,30 +68,38 @@ header h1 { font-size: 1.5rem; color: #1e293b; }
   overflow-x: auto;
 }
 
-/* Верхний ряд: группы */
+/* Верхний ряд: группы с разделителями */
 .top-row-container {
   display: flex;
-  gap: 2px;
   border: 2px solid #475569;
-  padding: 3px;
-  background: white;
   border-radius: 4px;
+  background: white;
+  padding: 3px;
   width: max-content;
 }
 .top-group {
   display: flex;
   flex-direction: column;
   align-items: center;
+  /* Разделитель между группами (кроме последней) */
+  border-right: 2px solid #475569;
+  margin-right: 2px;
+  padding-right: 2px;
+}
+.top-group:last-child {
+  border-right: none;
+  margin-right: 0;
+  padding-right: 0;
 }
 .top-group-label {
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   font-weight: 600;
   text-align: center;
   background: #f1f5f9;
-  padding: 4px 2px;
-  border-radius: 6px;
+  padding: 6px 8px;
+  border-radius: 8px;
   color: #1e293b;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
   white-space: nowrap;
 }
 .top-group-spots {
@@ -115,25 +123,24 @@ header h1 { font-size: 1.5rem; color: #1e293b; }
   margin: 5px 0;
 }
 
-/* Левый ряд: вертикальный текст */
+/* Левый ряд: вертикальная подпись (единый стиль с горизонтальными) */
 .left-row-wrapper {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
 }
 .vertical-label {
   writing-mode: vertical-rl;
   transform: rotate(180deg);
   white-space: nowrap;
   font-size: 0.85rem;
-  font-weight: 700;
-  color: #1e40af;
-  background: #dbeafe;
-  padding: 12px 6px;
+  font-weight: 600;
+  background: #f1f5f9;
+  padding: 12px 8px;
   border-radius: 12px;
-  letter-spacing: 1px;
-  height: min-content;
+  color: #1e293b;
   text-align: center;
+  letter-spacing: 1px;
 }
 .spots-vertical {
   display: flex;
@@ -186,7 +193,7 @@ header h1 { font-size: 1.5rem; color: #1e293b; }
 .spot.electric { background: #a78bfa; border-color: #7c3aed; color: white; }
 .spot.disabled { background: #ffffff; border-color: #1e293b; color: #1e293b; }
 
-/* состояния */
+/* состояния занятости */
 .spot.busy {
   background: #f87171 !important;
   border-color: #dc2626 !important;
@@ -203,7 +210,7 @@ header h1 { font-size: 1.5rem; color: #1e293b; }
   50% { opacity: 0.7; }
 }
 
-/* подсказка */
+/* подсказка при наведении */
 .spot[data-guest]:not([data-guest=""])::after {
   content: attr(data-guest);
   position: absolute;
@@ -274,6 +281,6 @@ header h1 { font-size: 1.5rem; color: #1e293b; }
   .spots-vertical { width: 75px; }
   .spots-vertical .spot { height: 28px; font-size: 0.75rem; }
   header h1 { font-size: 1.2rem; }
-  .top-group-label { font-size: 0.6rem; white-space: normal; }
-  .vertical-label { font-size: 0.7rem; padding: 8px 4px; }
+  .top-group-label { font-size: 0.65rem; white-space: normal; text-align: center; }
+  .vertical-label { font-size: 0.7rem; padding: 8px 6px; }
 }
