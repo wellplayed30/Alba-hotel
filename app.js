@@ -26,11 +26,10 @@ const db = getFirestore(app);
 
 // === КОНФИГ ПАРКОВКИ ===
 const LEFT_SPOTS = Array.from({length: 34}, (_, i) => i + 1);
-const TOP_SPOTS  = Array.from({length: 56}, (_, i) => i + 36);
 const ELECTRIC_SPOTS = [59, 65];
-const DISABLED_SPOTS = [72, 73, 74, 75]; // 61,62,63,71 — обычные
+const DISABLED_SPOTS = [72, 73, 74, 75];
 
-// Группы для подписей на верхнем ряду
+// Группы для верхнего ряда: start, end, label
 const TOP_GROUPS = [
   { start: 36, end: 41, label: "Парковка гостиничного оператора" },
   { start: 42, end: 60, label: "Парковка собственников апартаментов" },
@@ -78,10 +77,7 @@ onAuthStateChanged(auth, async (user) => {
     if (userDoc.exists()) {
       currentRole = userDoc.data().role || "viewer";
     } else {
-      await setDoc(doc(db, "users", user.uid), {
-        email: user.email,
-        role: "viewer"
-      });
+      await setDoc(doc(db, "users", user.uid), { email: user.email, role: "viewer" });
       currentRole = "viewer";
     }
 
@@ -103,31 +99,33 @@ onAuthStateChanged(auth, async (user) => {
 
 // === ОТРИСОВКА ===
 function renderParking() {
-  renderTopRowWithLabels();
+  renderTopRow();
   renderLeftColumn();
 }
 
-function renderTopRowWithLabels() {
-  const topSpotsContainer = document.getElementById("top-spots");
-  const topLabelsContainer = document.getElementById("top-labels");
-  topSpotsContainer.innerHTML = "";
-  topLabelsContainer.innerHTML = "";
+function renderTopRow() {
+  const container = document.getElementById("top-row-container");
+  container.innerHTML = "";
 
-  // Для каждой группы создаём блок подписи и контейнер мест
   TOP_GROUPS.forEach(group => {
-    // Создаём блок подписи
-    const labelDiv = document.createElement("div");
-    labelDiv.className = "top-label";
-    labelDiv.textContent = group.label;
-    topLabelsContainer.appendChild(labelDiv);
+    const groupDiv = document.createElement("div");
+    groupDiv.className = "top-group";
 
-    // Создаём контейнер для мест этой группы (чтобы подпись была ровно над ними)
-    const groupContainer = document.createElement("div");
-    groupContainer.className = "top-spot-group";
+    // Подпись группы
+    const labelDiv = document.createElement("div");
+    labelDiv.className = "top-group-label";
+    labelDiv.textContent = group.label;
+    groupDiv.appendChild(labelDiv);
+
+    // Контейнер для мест
+    const spotsContainer = document.createElement("div");
+    spotsContainer.className = "top-group-spots";
     for (let num = group.start; num <= group.end; num++) {
-      groupContainer.appendChild(createSpot(num));
+      spotsContainer.appendChild(createSpot(num));
     }
-    topSpotsContainer.appendChild(groupContainer);
+    groupDiv.appendChild(spotsContainer);
+
+    container.appendChild(groupDiv);
   });
 }
 
@@ -142,16 +140,15 @@ function createSpot(num) {
   div.className = "spot";
   div.dataset.num = num;
 
-  let icon = "";
   if (ELECTRIC_SPOTS.includes(num)) {
     div.classList.add("electric");
-    icon = '<span class="spot-icon">⚡</span>';
+    div.innerHTML = `<span class="spot-icon">⚡</span><span class="spot-num">${num}</span>`;
   } else if (DISABLED_SPOTS.includes(num)) {
     div.classList.add("disabled");
-    icon = '<span class="spot-icon">♿</span>';
+    div.innerHTML = `<span class="spot-icon">♿</span><span class="spot-num">${num}</span>`;
+  } else {
+    div.innerHTML = `<span class="spot-num">${num}</span>`;
   }
-
-  div.innerHTML = `${icon}<span class="spot-num">${num}</span>`;
   div.onclick = () => openModal(num);
   return div;
 }
@@ -168,7 +165,6 @@ function updateSpotStatuses() {
     if (data && (data.apart || data.plate)) {
       const now = new Date();
       const until = data.until ? new Date(data.until) : null;
-
       if (until && until < now) {
         el.classList.add("expired");
       } else {
@@ -204,7 +200,6 @@ setInterval(updateSpotStatuses, 60 * 1000);
 function openModal(num) {
   selectedSpot = num;
   document.getElementById("modal-title").textContent = `Место №${num}`;
-
   const typeInfo = document.getElementById("modal-spot-type");
   if (ELECTRIC_SPOTS.includes(Number(num))) {
     typeInfo.textContent = "⚡ Место для электрозарядки";
@@ -220,7 +215,6 @@ function openModal(num) {
   const data = parkingData[num] || {};
   document.getElementById("apart-input").value = data.apart || "";
   document.getElementById("plate-input").value = data.plate || "";
-
   if (data.until) {
     const d = new Date(data.until);
     const pad = n => String(n).padStart(2, "0");
@@ -234,7 +228,7 @@ function openModal(num) {
   document.getElementById("apart-input").disabled = !isEditor;
   document.getElementById("plate-input").disabled = !isEditor;
   document.getElementById("until-input").disabled = !isEditor;
-  document.getElementById("save-btn").style.display  = isEditor ? "inline-block" : "none";
+  document.getElementById("save-btn").style.display = isEditor ? "inline-block" : "none";
   document.getElementById("clear-btn").style.display = isEditor && (data.apart || data.plate) ? "inline-block" : "none";
 
   modal.style.display = "flex";
@@ -255,20 +249,16 @@ document.getElementById("save-btn").onclick = async () => {
     alert("У вас нет прав на редактирование");
     return;
   }
-
   const apart = document.getElementById("apart-input").value.trim();
   const plate = document.getElementById("plate-input").value.trim();
   const untilVal = document.getElementById("until-input").value;
-
   if (!apart && !plate) {
     alert("Укажите № апарта или гос. номер");
     return;
   }
-
   try {
     await setDoc(doc(db, "parking", String(selectedSpot)), {
-      apart,
-      plate,
+      apart, plate,
       until: untilVal ? new Date(untilVal).toISOString() : null,
       updatedAt: new Date().toISOString(),
       updatedBy: currentUser.email
@@ -284,7 +274,6 @@ document.getElementById("clear-btn").onclick = async () => {
   if (!selectedSpot) return;
   if (currentRole !== "editor") return;
   if (!confirm(`Освободить место №${selectedSpot}?`)) return;
-
   try {
     await deleteDoc(doc(db, "parking", String(selectedSpot)));
     closeModal();

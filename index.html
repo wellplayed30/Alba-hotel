@@ -40,27 +40,23 @@
 
   <!-- Схема парковки -->
   <div id="parking-map">
-    <!-- Верхний ряд с подписями -->
-    <div class="top-row">
-      <div class="row-label">Верхний ряд</div>
-      <div class="top-labels" id="top-labels"></div>
-      <div class="spots-horizontal" id="top-spots"></div>
-    </div>
+    <!-- Верхний ряд с групповыми подписями -->
+    <div class="top-row-container" id="top-row-container"></div>
 
     <!-- Проезд -->
     <div class="driveway">
       <span>↑ ПРОЕЗД ↑</span>
     </div>
 
-    <!-- Левый ряд -->
-    <div class="left-row">
-      <div class="left-label">Парковка гостиничного оператора</div>
+    <!-- Левый ряд (1–34) с вертикальной подписью -->
+    <div class="left-row-wrapper">
+      <div class="vertical-label">Парковка гостиничного оператора</div>
       <div class="spots-vertical" id="left-spots"></div>
     </div>
   </div>
 </div>
 
-<!-- Модальное окно редактирования -->
+<!-- Модальное окно -->
 <div id="modal" class="modal" style="display:none;">
   <div class="modal-content">
     <h2 id="modal-title">Место №</h2>

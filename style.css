@@ -64,42 +64,12 @@ header h1 { font-size: 1.5rem; color: #1e293b; }
   border-radius: 12px;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
   gap: 10px;
-  margin: 0 auto;
   overflow-x: auto;
 }
 
-.row-label {
-  font-size: 0.75rem; color: #64748b;
-  text-transform: uppercase; letter-spacing: 1px;
-  margin-bottom: 4px;
-}
-
-/* === ВЕРХНИЙ РЯД С ПОДПИСЯМИ === */
-.top-row {
-  width: 100%;
-}
-.top-labels {
-  display: flex;
-  gap: 2px;
-  margin-bottom: 6px;
-}
-.top-label {
-  font-size: 0.7rem;
-  font-weight: 600;
-  text-align: center;
-  background: #f8fafc;
-  padding: 4px 2px;
-  border-radius: 6px;
-  color: #1e293b;
-  white-space: normal;
-  word-break: keep-all;
-  line-height: 1.2;
-  flex-shrink: 0;
-  /* ширина будет задаваться через JS или CSS — сделаем auto, но для единообразия позже */
-}
-.spots-horizontal {
+/* Верхний ряд: группы */
+.top-row-container {
   display: flex;
   gap: 2px;
   border: 2px solid #475569;
@@ -108,34 +78,62 @@ header h1 { font-size: 1.5rem; color: #1e293b; }
   border-radius: 4px;
   width: max-content;
 }
-.top-spot-group {
+.top-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.top-group-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-align: center;
+  background: #f1f5f9;
+  padding: 4px 2px;
+  border-radius: 6px;
+  color: #1e293b;
+  margin-bottom: 4px;
+  white-space: nowrap;
+}
+.top-group-spots {
   display: flex;
   gap: 2px;
 }
-/* ширина подписи должна соответствовать ширине группы */
-.top-label {
-  min-width: calc(44px * количество_мест_в_группе + 2px * (количество_мест_в_группе - 1));
-}
-/* зададим через JS динамически или используем flex: auto, но лучше пусть JS задаст ширину */
-/* Добавим в app.js расчёт ширины */
-/* Но для простоты можно обойтись, если подписи центрируются автоматически */
-/* Упростим: уберём min-width, пусть текст переносится */
 
-/* === ЛЕВЫЙ РЯД === */
-.left-row {
+/* Проезд */
+.driveway {
+  width: 100%;
+  height: 50px;
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 2px;
+  background: repeating-linear-gradient(90deg, transparent, transparent 15px, #94a3b8 15px, #94a3b8 25px);
+  border-radius: 4px;
+  margin: 5px 0;
 }
-.left-label {
-  font-size: 0.75rem;
+
+/* Левый ряд: вертикальный текст */
+.left-row-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.vertical-label {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  white-space: nowrap;
+  font-size: 0.85rem;
   font-weight: 700;
-  background: #e2e8f0;
-  padding: 6px 12px;
-  border-radius: 20px;
-  margin-bottom: 8px;
   color: #1e40af;
   background: #dbeafe;
+  padding: 12px 6px;
+  border-radius: 12px;
+  letter-spacing: 1px;
+  height: min-content;
+  text-align: center;
 }
 .spots-vertical {
   display: flex;
@@ -170,10 +168,7 @@ header h1 { font-size: 1.5rem; color: #1e293b; }
   box-shadow: 0 2px 8px rgba(0,0,0,0.25);
   z-index: 5;
 }
-
-/* Размеры */
-.spots-horizontal .spot,
-.top-spot-group .spot {
+.top-group-spots .spot {
   width: 44px;
   height: 56px;
 }
@@ -183,19 +178,15 @@ header h1 { font-size: 1.5rem; color: #1e293b; }
   flex-direction: row;
   gap: 4px;
 }
-
-.spot-icon {
-  font-size: 14px;
-  line-height: 1;
-}
-.spots-horizontal .spot-icon { margin-bottom: 1px; }
+.spot-icon { font-size: 14px; line-height: 1; }
+.top-group-spots .spot-icon { margin-bottom: 1px; }
 .spot-num { font-size: inherit; }
 
-/* Цвета по типу */
+/* типы мест */
 .spot.electric { background: #a78bfa; border-color: #7c3aed; color: white; }
 .spot.disabled { background: #ffffff; border-color: #1e293b; color: #1e293b; }
 
-/* Состояния */
+/* состояния */
 .spot.busy {
   background: #f87171 !important;
   border-color: #dc2626 !important;
@@ -212,7 +203,7 @@ header h1 { font-size: 1.5rem; color: #1e293b; }
   50% { opacity: 0.7; }
 }
 
-/* Подсказка */
+/* подсказка */
 .spot[data-guest]:not([data-guest=""])::after {
   content: attr(data-guest);
   position: absolute;
@@ -233,23 +224,7 @@ header h1 { font-size: 1.5rem; color: #1e293b; }
 }
 .spot[data-guest]:not([data-guest=""]):hover::after { opacity: 1; }
 
-/* Проезд */
-.driveway {
-  width: 100%;
-  height: 50px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #64748b;
-  font-size: 0.85rem;
-  font-weight: 600;
-  letter-spacing: 2px;
-  background: repeating-linear-gradient(90deg, transparent, transparent 15px, #94a3b8 15px, #94a3b8 25px);
-  border-radius: 4px;
-  margin: 5px 0;
-}
-
-/* Модалка */
+/* модалка */
 .modal {
   position: fixed; inset: 0;
   background: rgba(0,0,0,0.5);
@@ -289,10 +264,9 @@ header h1 { font-size: 1.5rem; color: #1e293b; }
 .btn-secondary { background: #e2e8f0; color: #1e293b; }
 .btn-secondary:hover { background: #cbd5e1; }
 
-/* Мобильная адаптация */
+/* мобильная адаптация */
 @media (max-width: 600px) {
-  .spots-horizontal .spot,
-  .top-spot-group .spot {
+  .top-group-spots .spot {
     width: 38px;
     height: 48px;
     font-size: 0.7rem;
@@ -300,6 +274,6 @@ header h1 { font-size: 1.5rem; color: #1e293b; }
   .spots-vertical { width: 75px; }
   .spots-vertical .spot { height: 28px; font-size: 0.75rem; }
   header h1 { font-size: 1.2rem; }
-  .top-label { font-size: 0.6rem; }
-  .left-label { font-size: 0.65rem; }
+  .top-group-label { font-size: 0.6rem; white-space: normal; }
+  .vertical-label { font-size: 0.7rem; padding: 8px 4px; }
 }
