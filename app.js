@@ -27,8 +27,8 @@ const db = getFirestore(app);
 // === КОНФИГ ПАРКОВКИ ===
 const LEFT_SPOTS = Array.from({length: 34}, (_, i) => i + 1);
 const ELECTRIC_SPOTS = [59, 65];
-// Инвалидные места: 61,62,63,72
-const DISABLED_SPOTS = [61, 62, 63, 72];
+// Инвалидные места: 61,62,63,72,73,74,75
+const DISABLED_SPOTS = [61, 62, 63, 72, 73, 74, 75];
 
 // Группы для верхнего ряда: start, end, label
 const TOP_GROUPS = [
