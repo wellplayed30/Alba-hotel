@@ -57,6 +57,33 @@ header h1 { font-size: 1.5rem; color: #1e293b; }
 .dot.electric { background: #a78bfa; border: 1px solid #7c3aed; }
 .dot.disabled { background: #ffffff; border: 1px solid #1e293b; }
 
+/* === ПОДПИСИ ЗОН === */
+.zone-labels {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+.zone-label {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background: white;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+.zone-label.hotel {
+  background: #dbeafe;
+  color: #1e40af;
+  border-left: 4px solid #2563eb;
+}
+.zone-label.owner {
+  background: #fef3c7;
+  color: #92400e;
+  border-left: 4px solid #f59e0b;
+}
+
 /* === КАРТА ПАРКОВКИ === */
 #parking-map {
   background: #d6ebf5;
@@ -89,6 +116,20 @@ header h1 { font-size: 1.5rem; color: #1e293b; }
   background: white;
   border-radius: 4px;
   width: max-content;
+}
+/* Разделитель между 41 и 42 */
+.spot-separator {
+  width: 6px;
+  background: repeating-linear-gradient(
+    45deg,
+    #475569,
+    #475569 4px,
+    #94a3b8 4px,
+    #94a3b8 8px
+  );
+  margin: 0 2px;
+  border-radius: 2px;
+  cursor: help;
 }
 
 /* Проезд */
@@ -252,4 +293,6 @@ header h1 { font-size: 1.5rem; color: #1e293b; }
   .spots-vertical { width: 75px; }
   .spots-vertical .spot { height: 28px; font-size: 0.75rem; }
   header h1 { font-size: 1.2rem; }
+  .spot-separator { width: 4px; }
+  .zone-label { font-size: 0.7rem; }
 }

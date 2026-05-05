@@ -31,8 +31,8 @@ const LEFT_SPOTS = Array.from({length: 34}, (_, i) => i + 1);
 const TOP_SPOTS  = Array.from({length: 56}, (_, i) => i + 36);
 // Электрозарядки (фиолетовые)
 const ELECTRIC_SPOTS = [59, 65];
-// Места для инвалидов (белые с ♿)
-const DISABLED_SPOTS = [60, 61, 62, 63, 71, 72, 73, 74, 75];
+// Места для инвалидов (белые с ♿) — место 60 стало обычным
+const DISABLED_SPOTS = [61, 62, 63, 71, 72, 73, 74, 75];
 
 // === СОСТОЯНИЕ ===
 let currentUser = null;
@@ -104,10 +104,21 @@ onAuthStateChanged(auth, async (user) => {
 
 // === ОТРИСОВКА ПАРКОВКИ ===
 function renderParking() {
-  // Верхний ряд (36–91)
+  // Верхний ряд (36–91) с разделителем после 41
   const topEl = document.getElementById("top-spots");
   topEl.innerHTML = "";
-  TOP_SPOTS.forEach(num => topEl.appendChild(createSpot(num)));
+  
+  for (let i = 0; i < TOP_SPOTS.length; i++) {
+    const num = TOP_SPOTS[i];
+    topEl.appendChild(createSpot(num));
+    // Если это место 41, добавляем разделитель
+    if (num === 41) {
+      const separator = document.createElement("div");
+      separator.className = "spot-separator";
+      separator.title = "Граница: 1–41 — гостиница, 42–91 — собственники";
+      topEl.appendChild(separator);
+    }
+  }
 
   // Левый ряд (1–34) — column-reverse в CSS, поэтому добавляем по порядку
   const leftEl = document.getElementById("left-spots");
