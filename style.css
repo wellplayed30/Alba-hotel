@@ -65,12 +65,11 @@ header h1 { font-size: 1.5rem; color: #1e293b; }
   display: flex;
   flex-direction: column;
   gap: 10px;
-  overflow-x: auto;
+  overflow-x: auto;  /* Горизонтальная прокрутка */
+  white-space: nowrap;
 }
-
-/* Верхний ряд: группы с разделителями */
 .top-row-container {
-  display: flex;
+  display: inline-flex;
   border: 2px solid #475569;
   border-radius: 4px;
   background: white;
@@ -81,7 +80,6 @@ header h1 { font-size: 1.5rem; color: #1e293b; }
   display: flex;
   flex-direction: column;
   align-items: center;
-  /* Разделитель между группами (кроме последней) */
   border-right: 2px solid #475569;
   margin-right: 2px;
   padding-right: 2px;
@@ -123,11 +121,12 @@ header h1 { font-size: 1.5rem; color: #1e293b; }
   margin: 5px 0;
 }
 
-/* Левый ряд: вертикальная подпись (единый стиль с горизонтальными) */
+/* Левый ряд */
 .left-row-wrapper {
   display: flex;
   align-items: center;
   gap: 12px;
+  white-space: normal;
 }
 .vertical-label {
   writing-mode: vertical-rl;
@@ -193,7 +192,7 @@ header h1 { font-size: 1.5rem; color: #1e293b; }
 .spot.electric { background: #a78bfa; border-color: #7c3aed; color: white; }
 .spot.disabled { background: #ffffff; border-color: #1e293b; color: #1e293b; }
 
-/* состояния занятости */
+/* состояния */
 .spot.busy {
   background: #f87171 !important;
   border-color: #dc2626 !important;
@@ -210,7 +209,7 @@ header h1 { font-size: 1.5rem; color: #1e293b; }
   50% { opacity: 0.7; }
 }
 
-/* подсказка при наведении */
+/* подсказка */
 .spot[data-guest]:not([data-guest=""])::after {
   content: attr(data-guest);
   position: absolute;
@@ -271,7 +270,69 @@ header h1 { font-size: 1.5rem; color: #1e293b; }
 .btn-secondary { background: #e2e8f0; color: #1e293b; }
 .btn-secondary:hover { background: #cbd5e1; }
 
-/* мобильная адаптация */
+/* === АДАПТАЦИЯ ПОД НОУТБУК === */
+@media screen and (max-width: 1366px) and (min-width: 1024px) {
+  .top-group-spots .spot {
+    width: 36px;
+    height: 48px;
+    font-size: 0.7rem;
+  }
+  .top-group-label {
+    font-size: 0.65rem;
+    padding: 4px 6px;
+    white-space: normal;
+    text-align: center;
+    max-width: 100px;
+  }
+  .vertical-label {
+    font-size: 0.7rem;
+    padding: 8px 5px;
+  }
+  .legend {
+    gap: 12px;
+  }
+  .dot {
+    width: 14px;
+    height: 14px;
+  }
+  header h1 { font-size: 1.3rem; }
+  #parking-map {
+    padding: 12px;
+  }
+}
+
+@media screen and (max-width: 1280px) {
+  .top-group-spots .spot {
+    width: 32px;
+    height: 44px;
+    font-size: 0.65rem;
+  }
+  .top-group-label {
+    font-size: 0.6rem;
+    padding: 3px 4px;
+  }
+  .vertical-label {
+    font-size: 0.65rem;
+    padding: 6px 4px;
+  }
+  .spots-vertical {
+    width: 70px;
+  }
+  .spots-vertical .spot {
+    height: 26px;
+    font-size: 0.7rem;
+  }
+  .driveway {
+    height: 40px;
+    font-size: 0.75rem;
+  }
+  .legend {
+    gap: 10px;
+    padding: 8px 12px;
+  }
+}
+
+/* === МОБИЛЬНАЯ АДАПТАЦИЯ (оставляем) === */
 @media (max-width: 600px) {
   .top-group-spots .spot {
     width: 38px;
@@ -281,6 +342,6 @@ header h1 { font-size: 1.5rem; color: #1e293b; }
   .spots-vertical { width: 75px; }
   .spots-vertical .spot { height: 28px; font-size: 0.75rem; }
   header h1 { font-size: 1.2rem; }
-  .top-group-label { font-size: 0.65rem; white-space: normal; text-align: center; }
+  .top-group-label { font-size: 0.6rem; white-space: normal; text-align: center; }
   .vertical-label { font-size: 0.7rem; padding: 8px 6px; }
 }
