@@ -3,13 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%232563eb' rx='20'/%3E%3Ctext x='50' y='72' font-size='64' text-anchor='middle' fill='white' font-family='Arial, sans-serif'%3EP%3C/text%3E%3C/svg%3E">
 <title>Парковка AlbaDelMare</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%232563eb' rx='20'/%3E%3Ctext x='50' y='72' font-size='64' text-anchor='middle' fill='white' font-family='Arial, sans-serif' font-weight='bold'%3EP%3C/text%3E%3C/svg%3E">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<!-- Экран входа -->
 <div id="login-screen">
   <div class="logo-title">
     <img src="AlbaDelMare.png" alt="AlbaDelMare Logo" class="logo">
@@ -22,7 +21,6 @@
   <p id="login-error"></p>
 </div>
 
-<!-- Основной экран -->
 <div id="main-screen" style="display:none;">
   <header>
     <div class="logo-title-header">
@@ -36,27 +34,32 @@
     </div>
   </header>
 
-  <!-- Легенда -->
   <div class="legend">
     <span><span class="dot free"></span> Свободно</span>
     <span><span class="dot busy"></span> Занято</span>
     <span><span class="dot expired"></span> Бронь истекла</span>
     <span><span class="dot electric"></span> ⚡ Электрозарядка</span>
     <span><span class="dot disabled"></span> ♿ Для инвалидов</span>
+    <span><span class="dot management"></span> 🏢 Управляющая компания</span>
   </div>
 
-  <!-- Схема парковки -->
   <div id="parking-map">
     <div class="top-row-container" id="top-row-container"></div>
     <div class="driveway"><span>↑ ПРОЕЗД ↑</span></div>
-    <div class="left-row-wrapper">
-      <div class="vertical-label">Парковка гостиничного оператора</div>
-      <div class="spots-vertical" id="left-spots"></div>
+    
+    <!-- Левый ряд: 4 подписи и столбец мест -->
+    <div class="left-column-container">
+      <div class="left-labels-column">
+        <div class="vertical-label">Парковка гостиничного оператора</div>
+        <div class="vertical-label">Парковка гостиничного оператора</div>
+        <div class="vertical-label">Парковка гостиничного оператора</div>
+        <div class="vertical-label">Парковка гостиничного оператора</div>
+      </div>
+      <div class="left-spots-column" id="left-spots-column"></div>
     </div>
   </div>
 </div>
 
-<!-- Модальное окно -->
 <div id="modal" class="modal" style="display:none;">
   <div class="modal-content">
     <h2 id="modal-title">Место №</h2>
