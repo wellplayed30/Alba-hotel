@@ -645,6 +645,15 @@ header h1 {
     padding: 8px 12px;
   }
 }
+/* стилизация чекбокса, чтобы лучше вписывался */
+.modal-content input[type="checkbox"] {
+  width: auto;
+  margin: 0;
+}
+.modal-content label[for="unlimited-checkbox"] {
+  margin: 0;
+  font-weight: normal;
+}
 
 /* === МОБИЛЬНАЯ АДАПТАЦИЯ === */
 @media (max-width: 600px) {

@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>📋 Журнал изменений – Парковка AlbaDelMare</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%232563eb' rx='20'/%3E%3Ctext x='50' y='72' font-size='64' text-anchor='middle' fill='white' font-family='Arial, sans-serif' font-weight='bold'%3EP%3C/text%3E%3C/svg%3E">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background: #d6ebf5;
+      padding: 16px;
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    }
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 24px;
+      padding: 20px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    h1 {
+      font-size: 1.6rem;
+      color: #1e293b;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .zoom-controls {
+      display: flex;
+      gap: 10px;
+      background: #f1f5f9;
+      padding: 5px 12px;
+      border-radius: 40px;
+    }
+    .zoom-controls button {
+      background: white;
+      border: 1px solid #cbd5e1;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      font-size: 1.2rem;
+      cursor: pointer;
+    }
+    .zoom-level {
+      background: white;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+    .back-link {
+      background: #64748b;
+      text-decoration: none;
+      padding: 8px 18px;
+      border-radius: 30px;
+      color: white;
+      font-weight: 500;
+    }
+    .toggle-filters-btn {
+      background: #64748b;
+      width: 100%;
+      padding: 10px;
+      border: none;
+      border-radius: 40px;
+      color: white;
+      font-weight: 600;
+      margin-bottom: 16px;
+      cursor: pointer;
+    }
+    .filters {
+      display: none;
+      background: #f8fafc;
+      padding: 16px;
+      border-radius: 20px;
+      margin-bottom: 20px;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .filters.show {
+      display: flex;
+    }
+    .filter-row {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .filter-row label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #334155;
+    }
+    .filter-row input, .filter-row select {
+      padding: 10px;
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      font-size: 1rem;
+    }
+    .filter-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 8px;
+    }
+    .filter-buttons button {
+      flex: 1;
+      background: #2563eb;
+      color: white;
+      border: none;
+      padding: 10px;
+      border-radius: 12px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    /* Карточки */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 16px;
+    }
+    .log-card {
+      background: #f8fafc;
+      border-radius: 20px;
+      padding: 16px;
+      border: 1px solid #e2e8f0;
+      transition: 0.1s;
+    }
+    .log-card-row {
+      display: flex;
+      margin-bottom: 8px;
+      align-items: baseline;
+      flex-wrap: wrap;
+    }
+    .log-card-label {
+      font-weight: 700;
+      color: #475569;
+      width: 90px;
+      font-size: 0.8rem;
+    }
+    .log-card-value {
+      flex: 1;
+      font-size: 0.9rem;
+      word-break: break-word;
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .badge-create { background: #dcfce7; color: #166534; }
+    .badge-update { background: #fed7aa; color: #9a3412; }
+    .badge-delete { background: #fee2e2; color: #b91c1c; }
+    .detail-apart, .detail-plate, .detail-until {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-right: 4px;
+      margin-bottom: 2px;
+    }
+    .detail-apart { color: #15803d; background: #dcfce7; }
+    .detail-plate { color: #b45309; background: #fed7aa; }
+    .detail-until { color: #1e40af; background: #bfdbfe; white-space: nowrap; }
+    .detail-arrow { margin: 0 4px; font-weight: bold; color: #475569; }
+    .pagination {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 24px;
+    }
+    .pagination button {
+      background: #e2e8f0;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 30px;
+      cursor: pointer;
+    }
+    @media (min-width: 768px) {
+      .filters {
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: flex-end;
+      }
+      .filter-row {
+        flex: 1;
+        min-width: 150px;
+      }
+      .toggle-filters-btn {
+        display: none;
+      }
+      .filters {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="container" id="app-container">
+  <div class="header">
+    <h1>📋 Журнал изменений</h1>
+    <div style="display: flex; gap: 10px; align-items: center;">
+      <div class="zoom-controls">
+        <button id="zoom-out">−</button>
+        <span class="zoom-level" id="zoom-level">100%</span>
+        <button id="zoom-in">+</button>
+        <button id="zoom-reset">⟳</button>
+      </div>
+      <a href="index.html" class="back-link">← На парковку</a>
+    </div>
+  </div>
+
+  <button id="toggle-filters" class="toggle-filters-btn">🔽 Фильтры</button>
+  <div class="filters" id="filters-panel">
+    <div class="filter-row">
+      <label>📅 Дата с</label>
+      <input type="datetime-local" id="filter-date-from">
+    </div>
+    <div class="filter-row">
+      <label>📅 Дата по</label>
+      <input type="datetime-local" id="filter-date-to">
+    </div>
+    <div class="filter-row">
+      <label>👤 Пользователь</label>
+      <input type="text" id="filter-user" placeholder="Email">
+    </div>
+    <div class="filter-row">
+      <label>⚡ Действие</label>
+      <select id="filter-action">
+        <option value="">Все</option>
+        <option value="create">Создание</option>
+        <option value="update">Изменение</option>
+        <option value="delete">Удаление</option>
+      </select>
+    </div>
+    <div class="filter-row">
+      <label>🅿️ Место</label>
+      <input type="number" id="filter-spot" placeholder="Номер">
+    </div>
+    <div class="filter-buttons">
+      <button id="apply-filters">🔍 Применить</button>
+      <button id="reset-filters">🗑️ Сбросить</button>
+    </div>
+  </div>
+
+  <div id="cards-container" class="cards-grid">
+    <div style="text-align: center; padding: 40px;">Загрузка...</div>
+  </div>
+  <div id="pagination" class="pagination"></div>
+</div>
+
+<script type="module" src="logs.js"></script>
+<script>
+  // Масштабирование
+  (function() {
+    let zoom = 1;
+    const container = document.getElementById('app-container');
+    const zoomSpan = document.getElementById('zoom-level');
+    function setZoom(z) {
+      zoom = Math.min(1.5, Math.max(0.7, z));
+      container.style.transform = `scale(${zoom})`;
+      container.style.transformOrigin = 'top left';
+      container.style.width = `${100 / zoom}%`;
+      zoomSpan.innerText = Math.round(zoom * 100) + '%';
+      localStorage.setItem('logsZoom', zoom);
+    }
+    const saved = localStorage.getItem('logsZoom');
+    setZoom(saved ? parseFloat(saved) : 1);
+    document.getElementById('zoom-in').onclick = () => setZoom(zoom + 0.1);
+    document.getElementById('zoom-out').onclick = () => setZoom(zoom - 0.1);
+    document.getElementById('zoom-reset').onclick = () => setZoom(1);
+  })();
+
+  // Сворачивание фильтров
+  const toggleBtn = document.getElementById('toggle-filters');
+  const filters = document.getElementById('filters-panel');
+  if (toggleBtn && filters) {
+    toggleBtn.onclick = () => {
+      filters.classList.toggle('show');
+      toggleBtn.textContent = filters.classList.contains('show') ? '🔼 Скрыть фильтры' : '🔽 Показать фильтры';
+    };
+    if (window.innerWidth > 768) filters.classList.add('show');
+  }
+</script>
+</body>
+</html>
